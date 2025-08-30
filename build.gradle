@@ -50,8 +50,8 @@ tasks.named('test') {
 // SonarQube配置
 sonar {
     properties {
-        property "sonar.projectKey", "cicd-demo"
-        property "sonar.organization", "oocl-afs-class2"
+        property "sonar.projectKey", "ci-cd-demo"
+        property "sonar.organization", "yuanshenjian-cn"
         property "sonar.host.url", "https://sonarcloud.io"
         property "sonar.sources", "src/main/java"
         property "sonar.tests", "src/test/java"
