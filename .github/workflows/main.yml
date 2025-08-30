@@ -43,7 +43,7 @@ jobs:
       uses: dorny/test-reporter@v1
       if: success() || failure()
       with:
-        name: JUnit Tests
+        name: [Report] JUnit Tests
         path: build/test-results/test/*.xml
         reporter: java-junit
 
@@ -118,26 +118,21 @@ jobs:
       if: github.event_name != 'pull_request'
       run: npm install -g @railway/cli
 
-    - name: Validate Railway Configuration
+    - name: Authenticate with Railway
       if: github.event_name != 'pull_request'
       run: |
-        echo "🔍 Railway CLI Diagnostics"
-        echo "=========================="
+        echo "🔍 Railway Authentication Setup"
+        echo "==============================="
         echo "CLI Version:"
         railway --version
-        echo "Token Length: $(echo '${{ secrets.RAILWAY_TOKEN }}' | wc -c)"
-        echo "Token Prefix: $(echo '${{ secrets.RAILWAY_TOKEN }}' | cut -c1-8)..."
+        echo "Token: $(echo '${{ secrets.RAILWAY_TOKEN }}' | cut -c1-8)..."
         echo "Project ID: ${{ secrets.RAILWAY_PROJECT_ID }}"
         echo ""
-        echo "🔐 Testing Authentication..."
-        if railway whoami; then
-          echo "✅ Authentication successful"
-        else
-          echo "❌ Authentication failed"
-          echo "Token format should be: user-xxx... or team-xxx..."
-          echo "Please verify your RAILWAY_TOKEN in GitHub Secrets"
-          exit 1
-        fi
+        echo "🔐 Logging in to Railway..."
+        echo '${{ secrets.RAILWAY_TOKEN }}' | railway login
+        echo "Verifying authentication..."
+        railway whoami
+        echo "✅ Railway authentication successful"
       env:
         RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
 
