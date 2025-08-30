@@ -43,7 +43,7 @@ jobs:
       uses: dorny/test-reporter@v1
       if: success() || failure()
       with:
-        name: [Report] JUnit Tests
+        name: "JUnit Tests Report"
         path: build/test-results/test/*.xml
         reporter: java-junit
 
