@@ -114,17 +114,9 @@ jobs:
     - name: Build application
       run: ./gradlew build -x test
 
-    - name: Install Railway CLI
-      if: github.event_name != 'pull_request'
-      run: npm install -g @railway/cli
-
-    - name: Deploy to Railway Dev
-      if: github.event_name != 'pull_request'
-      run: |
-        echo "Linking to project: ${{ secrets.RAILWAY_PROJECT_ID }}"
-        railway link ${{ secrets.RAILWAY_PROJECT_ID }} --environment dev
-        echo "Starting deployment..."
-        railway up --detach
-        echo "Deployment initiated"
-      env:
-        RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+    - name: Deploy to Railway
+      uses: railwayapp/action@v1.3.2
+      with:
+        projectId: ${{ secrets.RAILWAY_PROJECT_ID }}
+        token: ${{ secrets.RAILWAY_TOKEN }}
+        environment: dev
