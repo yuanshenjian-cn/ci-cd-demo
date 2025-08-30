@@ -118,11 +118,36 @@ jobs:
       if: github.event_name != 'pull_request'
       run: npm install -g @railway/cli
 
+    - name: Validate Railway Configuration
+      if: github.event_name != 'pull_request'
+      run: |
+        echo "🔍 Railway CLI Diagnostics"
+        echo "=========================="
+        echo "CLI Version:"
+        railway --version
+        echo "Token Length: $(echo '${{ secrets.RAILWAY_TOKEN }}' | wc -c)"
+        echo "Token Prefix: $(echo '${{ secrets.RAILWAY_TOKEN }}' | cut -c1-8)..."
+        echo "Project ID: ${{ secrets.RAILWAY_PROJECT_ID }}"
+        echo ""
+        echo "🔐 Testing Authentication..."
+        if railway whoami; then
+          echo "✅ Authentication successful"
+        else
+          echo "❌ Authentication failed"
+          echo "Token format should be: user-xxx... or team-xxx..."
+          echo "Please verify your RAILWAY_TOKEN in GitHub Secrets"
+          exit 1
+        fi
+      env:
+        RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+
     - name: Deploy to Railway Dev
       if: github.event_name != 'pull_request'
       run: |
-        railway whoami
+        echo "Linking to project: ${{ secrets.RAILWAY_PROJECT_ID }}"
         railway link ${{ secrets.RAILWAY_PROJECT_ID }} --environment dev
+        echo "Starting deployment..."
         railway up --detach
+        echo "Deployment initiated"
       env:
         RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
