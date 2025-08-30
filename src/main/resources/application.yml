@@ -1,11 +1,11 @@
 spring:
   profiles:
-    active: ${SPRING_PROFILES_ACTIVE:dev}
+    active: ${SPRING_PROFILES_ACTIVE:local}
   datasource:
-    url: ${DATABASE_URL:jdbc:mysql://localhost:3306/employee_db}
+    url: ${DATABASE_URL:jdbc:mysql://localhost:3306/cicd_db}
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: ${MYSQL_USERNAME:root}
-    password: ${MYSQL_PASSWORD:1qaz2wsx!}
+    password: ${MYSQL_PASSWORD}
   jpa:
     database-platform: org.hibernate.dialect.MySQL8Dialect
     show-sql: true

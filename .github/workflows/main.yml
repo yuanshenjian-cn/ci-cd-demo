@@ -6,9 +6,7 @@ on:
   pull_request:
     branches: [ main ]
 
-env:
-  REGISTRY: docker.io
-  IMAGE_NAME: ${{ github.repository }}
+# 使用Railway直接部署，无需Docker镜像仓库
 
 jobs:
   test:
@@ -69,7 +67,7 @@ jobs:
         path: build/test-results/test/*.xml
         reporter: java-junit
 
-  build-and-deploy-dev:
+  deploy-dev:
     needs: test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
@@ -97,35 +95,7 @@ jobs:
     - name: Build application
       run: ./gradlew build -x test
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
-
-    - name: Log in to Docker Hub
-      if: github.event_name != 'pull_request'
-      uses: docker/login-action@v3
-      with:
-        username: ${{ secrets.DOCKER_HUB_USERNAME }}
-        password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-
-    - name: Extract metadata
-      id: meta
-      uses: docker/metadata-action@v5
-      with:
-        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-        tags: |
-          type=ref,event=branch
-          type=sha,prefix=main-
-
-    - name: Build and push Docker image
-      if: github.event_name != 'pull_request'
-      uses: docker/build-push-action@v5
-      with:
-        context: .
-        push: true
-        tags: ${{ steps.meta.outputs.tags }}
-        labels: ${{ steps.meta.outputs.labels }}
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
+    # Railway会直接从源码构建，跳过Docker Hub步骤
 
     - name: Install Railway CLI
       if: github.event_name != 'pull_request'
@@ -137,5 +107,18 @@ jobs:
         railway login --token ${{ secrets.RAILWAY_TOKEN }}
         railway link ${{ secrets.RAILWAY_PROJECT_ID }} --environment dev
         railway up --detach
+        
+        # 等待应用服务创建
+        sleep 10
+        
+        # 配置环境变量（如果在GitHub Secrets中配置了数据库信息）
+        if [ ! -z "${{ secrets.DEV_DATABASE_URL }}" ]; then
+          railway variables set SPRING_PROFILES_ACTIVE=dev
+          railway variables set DATABASE_URL="${{ secrets.DEV_DATABASE_URL }}"
+          railway variables set MYSQL_HOST="${{ secrets.DEV_MYSQL_HOST }}"
+          railway variables set MYSQL_PORT="${{ secrets.DEV_MYSQL_PORT }}"
+          railway variables set MYSQL_USERNAME="${{ secrets.DEV_MYSQL_USERNAME }}"
+          railway variables set MYSQL_PASSWORD="${{ secrets.DEV_MYSQL_PASSWORD }}"
+        fi
       env:
         RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}

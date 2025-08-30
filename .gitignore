@@ -38,3 +38,6 @@ out/
 
 ### VS Code ###
 .vscode/
+
+ci-cd-guides.md
+application-local.yml
