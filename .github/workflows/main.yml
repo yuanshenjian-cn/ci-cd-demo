@@ -6,7 +6,6 @@ on:
   pull_request:
     branches: [ main ]
 
-# GitHub Actions需要这些权限来创建测试报告和检查
 permissions:
   contents: read
   issues: read
@@ -115,8 +114,6 @@ jobs:
     - name: Build application
       run: ./gradlew build -x test
 
-    # Railway会直接从源码构建，跳过Docker Hub步骤
-
     - name: Install Railway CLI
       if: github.event_name != 'pull_request'
       run: npm install -g @railway/cli
@@ -124,21 +121,8 @@ jobs:
     - name: Deploy to Railway Dev
       if: github.event_name != 'pull_request'
       run: |
-        railway login --token ${{ secrets.RAILWAY_TOKEN }}
+        railway whoami
         railway link ${{ secrets.RAILWAY_PROJECT_ID }} --environment dev
         railway up --detach
-        
-        # 等待应用服务创建
-        sleep 10
-        
-        # 配置环境变量（如果在GitHub Secrets中配置了数据库信息）
-        if [ ! -z "${{ secrets.DEV_DATABASE_URL }}" ]; then
-          railway variables set SPRING_PROFILES_ACTIVE=dev
-          railway variables set DATABASE_URL="${{ secrets.DEV_DATABASE_URL }}"
-          railway variables set MYSQL_HOST="${{ secrets.DEV_MYSQL_HOST }}"
-          railway variables set MYSQL_PORT="${{ secrets.DEV_MYSQL_PORT }}"
-          railway variables set MYSQL_USERNAME="${{ secrets.DEV_MYSQL_USERNAME }}"
-          railway variables set MYSQL_PASSWORD="${{ secrets.DEV_MYSQL_PASSWORD }}"
-        fi
       env:
         RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
