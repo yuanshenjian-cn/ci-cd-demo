@@ -4,7 +4,8 @@ spring:
   datasource:
 
 #    url: ${DATABASE_URL:jdbc:mysql://shinkansen.proxy.rlwy.net:45565/cicd_demo_db}
-    url: ${DATABASE_URL:jdbc:mysql://mysql.railway.internal:3306/cicd_demo_db}
+#    url: ${DATABASE_URL:jdbc:mysql://mysql.railway.internal:3306/cicd_demo_db}
+    url: ${DATABASE_URL}
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: ${MYSQL_USERNAME:root}
     password: ${MYSQL_PASSWORD}
