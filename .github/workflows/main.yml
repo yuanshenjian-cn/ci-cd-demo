@@ -121,10 +121,10 @@ jobs:
     - name: Deploy to Railway Dev
       if: github.event_name != 'pull_request'
       run: |
-        echo "Linking to project: a5c93c69-f935-4836-8970-3c58a3ee254d"
-        railway link --project 'a5c93c69-f935-4836-8970-3c58a3ee254d' --environment dev
+        echo "Linking to project: ${{ secrets.RAILWAY_PROJECT_ID }}"
+        railway link --project ${{ secrets.RAILWAY_PROJECT_ID }} --environment dev
         echo "Starting deployment..."
         railway up --detach
         echo "Deployment initiated"
       env:
-        RAILWAY_TOKEN: 'a5c93c69-f935-4836-8970-3c58a3ee254d'
+        RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
