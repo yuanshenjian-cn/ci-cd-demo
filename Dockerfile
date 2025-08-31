@@ -16,7 +16,7 @@ COPY src src
 RUN ./gradlew build -x test --no-daemon
 
 # Copy the built jar
-RUN cp build/libs/*.jar app.jar
+RUN JAR_FILE=$(ls build/libs/*.jar | grep -v plain | head -n 1) && cp ${JAR_FILE} app.jar
 
 # Expose port
 EXPOSE 8080
